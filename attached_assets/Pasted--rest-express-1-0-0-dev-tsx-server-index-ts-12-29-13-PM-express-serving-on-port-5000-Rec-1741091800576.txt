@@ -1,0 +1,55 @@
+
+> rest-express@1.0.0 dev
+> tsx server/index.ts
+
+12:29:13 PM [express] serving on port 5000
+Received test request: { url: 'https://www.example.com', permission: true }
+Created test: {
+  url: 'https://www.example.com',
+  permission: true,
+  id: 1,
+  status: 'pending',
+  results: null,
+  createdAt: 2025-03-04T12:29:38.854Z
+}
+Starting tests for https://www.example.com (Test ID: 1)
+Launching browser...
+12:29:38 PM [express] POST /api/tests 200 in 6ms :: {"url":"https://www.example.com","permission":tru…
+Test failed: Error: Failed to launch the browser process!
+/home/runner/.cache/puppeteer/chrome/linux-133.0.6943.141/chrome-linux64/chrome: error while loading shared libraries: libcups.so.2: cannot open shared object file: No such file or directory
+
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+    at Interface.onClose (/home/runner/workspace/node_modules/@puppeteer/browsers/src/launch.ts:490:11)
+    at Interface.emit (node:events:530:35)
+    at Interface.close (node:internal/readline/interface:527:10)
+    at Socket.onend (node:internal/readline/interface:253:10)
+    at Socket.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+Received test request: { url: 'https://example.com', permission: true }
+Created test: {
+  url: 'https://example.com',
+  permission: true,
+  id: 2,
+  status: 'pending',
+  results: null,
+  createdAt: 2025-03-04T12:30:19.685Z
+}
+Starting tests for https://example.com (Test ID: 2)
+Launching browser...
+12:30:19 PM [express] POST /api/tests 200 in 1ms :: {"url":"https://example.com","permission":true,"i…
+Test failed: Error: Failed to launch the browser process!
+/home/runner/.cache/puppeteer/chrome/linux-133.0.6943.141/chrome-linux64/chrome: error while loading shared libraries: libcups.so.2: cannot open shared object file: No such file or directory
+
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+    at Interface.onClose (/home/runner/workspace/node_modules/@puppeteer/browsers/src/launch.ts:490:11)
+    at Interface.emit (node:events:530:35)
+    at Interface.close (node:internal/readline/interface:527:10)
+    at Socket.onend (node:internal/readline/interface:253:10)
+    at Socket.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
