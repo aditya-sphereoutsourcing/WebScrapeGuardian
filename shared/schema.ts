@@ -19,6 +19,14 @@ export const insertTestSchema = createInsertSchema(tests).pick({
 export type InsertTest = z.infer<typeof insertTestSchema>;
 export type Test = typeof tests.$inferSelect;
 
+export type SecurityVulnerability = {
+  type: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  evidence?: string;
+  recommendation?: string;
+};
+
 export type TestResult = {
   functional: {
     navigationTime: number;
@@ -29,10 +37,22 @@ export type TestResult = {
     responseTime: number;
   };
   security: {
-    vulnerabilities: Array<{
-      type: string;
-      description: string;
-      severity: 'low' | 'medium' | 'high';
-    }>;
+    vulnerabilities: SecurityVulnerability[];
+    summary: {
+      critical: number;
+      high: number;
+      medium: number;
+      low: number;
+    };
+    ssl: {
+      valid: boolean;
+      issuer?: string;
+      expiryDate?: string;
+      protocols?: string[];
+    };
+    headers: {
+      missing: string[];
+      misconfigured: string[];
+    };
   };
 };

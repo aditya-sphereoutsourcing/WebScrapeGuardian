@@ -3,6 +3,7 @@ import { storage } from '../storage';
 import type { TestResult } from '@shared/schema';
 import { execSync } from 'child_process';
 import fs from 'fs';
+import { SecurityScanner } from './security-scanner';
 
 function findChromiumPath(): string {
   // Try to find using which command first
@@ -73,6 +74,9 @@ export async function runTests(testId: number, url: string) {
       },
       security: {
         vulnerabilities: [],
+        summary: { critical: 0, high: 0, medium: 0, low: 0 },
+        ssl: { valid: false },
+        headers: { missing: [], misconfigured: [] },
       },
     };
 
@@ -121,31 +125,18 @@ export async function runTests(testId: number, url: string) {
     };
     console.log('Performance metrics:', results.performance);
 
-    // Security checks
-    console.log('Running security checks...');
-    const headers = await page.evaluate(() => 
-      fetch(window.location.href).then(r => 
-        Object.fromEntries(Array.from(r.headers.entries()))
-      )
-    );
+    // Run security scans
+    console.log('Running comprehensive security scans...');
+    const securityScanner = new SecurityScanner(page, url);
+    const securityResults = await securityScanner.runAllScans();
+    results.security = securityResults;
 
-    if (!headers['x-frame-options']) {
-      results.security.vulnerabilities.push({
-        type: 'Missing Headers',
-        description: 'X-Frame-Options header is missing',
-        severity: 'medium',
-      });
-    }
-
-    if (!headers['content-security-policy']) {
-      results.security.vulnerabilities.push({
-        type: 'Missing Headers',
-        description: 'Content-Security-Policy header is missing',
-        severity: 'high',
-      });
-    }
-
-    console.log(`Found ${results.security.vulnerabilities.length} security vulnerabilities`);
+    console.log('Security scan complete.');
+    console.log(`Found ${results.security.vulnerabilities.length} security issues:`);
+    console.log('Critical:', results.security.summary.critical);
+    console.log('High:', results.security.summary.high);
+    console.log('Medium:', results.security.summary.medium);
+    console.log('Low:', results.security.summary.low);
 
     // Update test results
     console.log('Updating test results...');
