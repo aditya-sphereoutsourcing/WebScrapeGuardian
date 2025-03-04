@@ -1,22 +1,59 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import { storage } from '../storage';
 import type { TestResult } from '@shared/schema';
+import { execSync } from 'child_process';
+import fs from 'fs';
+
+function findChromiumPath(): string {
+  // Common Chromium paths in Linux environments
+  const paths = [
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/nix/store/chromium/bin/chromium',
+    '/usr/bin/google-chrome',
+  ];
+
+  for (const path of paths) {
+    if (fs.existsSync(path)) {
+      console.log(`Found browser at: ${path}`);
+      return path;
+    }
+  }
+
+  // Try to find using which command
+  try {
+    const chromiumPath = execSync('which chromium').toString().trim();
+    if (chromiumPath) {
+      console.log(`Found browser using which: ${chromiumPath}`);
+      return chromiumPath;
+    }
+  } catch (err) {
+    console.log('Could not find browser using which command');
+  }
+
+  throw new Error('Could not find Chromium installation');
+}
 
 export async function runTests(testId: number, url: string) {
   console.log(`Starting tests for ${url} (Test ID: ${testId})`);
+  let browser;
+
   try {
     await storage.updateTestStatus(testId, 'running');
     console.log('Launching browser...');
 
-    const browser = await puppeteer.launch({
-      executablePath: '/nix/store/chromium/bin/chromium',
+    const executablePath = findChromiumPath();
+    console.log(`Using browser at path: ${executablePath}`);
+
+    browser = await puppeteer.launch({
+      executablePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu'
       ],
-      headless: "new"
+      headless: true
     });
 
     console.log('Browser launched successfully');
@@ -24,22 +61,22 @@ export async function runTests(testId: number, url: string) {
     await page.setViewport({ width: 1280, height: 800 });
     console.log('Browser page created');
 
-    // Initialize results object
-    const results: TestResult = {
-      functional: {
-        navigationTime: 0,
-        brokenLinks: [],
-      },
-      performance: {
-        loadTime: 0,
-        responseTime: 0,
-      },
-      security: {
-        vulnerabilities: [],
-      },
-    };
-
     try {
+      // Initialize results object
+      const results: TestResult = {
+        functional: {
+          navigationTime: 0,
+          brokenLinks: [],
+        },
+        performance: {
+          loadTime: 0,
+          responseTime: 0,
+        },
+        security: {
+          vulnerabilities: [],
+        },
+      };
+
       // Measure navigation time
       console.log('Navigating to page...');
       const start = Date.now();
@@ -73,8 +110,8 @@ export async function runTests(testId: number, url: string) {
       // Performance metrics
       console.log('Collecting performance metrics...');
       const perfMetrics = await page.evaluate(() => ({
-        loadTime: window.performance.timing.loadEventEnd - window.performance.timing.navigationStart,
-        responseTime: window.performance.timing.responseEnd - window.performance.timing.requestStart,
+        loadTime: performance.timing.loadEventEnd - performance.timing.navigationStart,
+        responseTime: performance.timing.responseEnd - performance.timing.requestStart,
       }));
 
       results.performance = {
@@ -109,11 +146,20 @@ export async function runTests(testId: number, url: string) {
 
       console.log(`Found ${results.security.vulnerabilities.length} security vulnerabilities`);
 
+      // Update test results
+      console.log('Updating test results...');
+      await storage.updateTestResults(testId, results);
+      console.log('Test completed successfully');
+
     } catch (pageError) {
       console.error('Error during page tests:', pageError);
       throw pageError;
-    } finally {
-      // Always try to close the browser
+    }
+  } catch (err) {
+    console.error('Test failed:', err);
+    await storage.updateTestStatus(testId, 'failed');
+  } finally {
+    if (browser) {
       try {
         await browser.close();
         console.log('Browser closed successfully');
@@ -121,12 +167,5 @@ export async function runTests(testId: number, url: string) {
         console.error('Error closing browser:', closeError);
       }
     }
-
-    console.log('Updating test results...');
-    await storage.updateTestResults(testId, results);
-    console.log('Test completed successfully');
-  } catch (err) {
-    console.error('Test failed:', err);
-    await storage.updateTestStatus(testId, 'failed');
   }
 }
