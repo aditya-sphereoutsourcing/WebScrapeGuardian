@@ -23,28 +23,31 @@ export default function TestForm({ onTestCreated }: TestFormProps) {
       permission: false,
     },
   });
-  
+
   const mutation = useMutation({
     mutationFn: async (data: { url: string; permission: boolean }) => {
       const res = await apiRequest("POST", "/api/tests", data);
-      return res.json();
+      const json = await res.json();
+      return json as Test;
     },
     onSuccess: (data) => {
       toast({
         title: "Test Started",
-        description: "Your website test has been initiated.",
+        description: "Your website test has been initiated. Results will appear shortly.",
       });
       onTestCreated(data);
+      form.reset();
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Test creation failed:', error);
       toast({
         title: "Error",
-        description: "Failed to start the test. Please try again.",
+        description: "Failed to start the test. Please check the URL and try again.",
         variant: "destructive",
       });
     },
   });
-  
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
@@ -55,13 +58,20 @@ export default function TestForm({ onTestCreated }: TestFormProps) {
             <FormItem>
               <FormLabel>Website URL</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com" {...field} />
+                <Input 
+                  placeholder="https://example.com" 
+                  {...field} 
+                  onChange={(e) => {
+                    // Trim whitespace from URL
+                    field.onChange(e.target.value.trim());
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="permission"
@@ -82,7 +92,7 @@ export default function TestForm({ onTestCreated }: TestFormProps) {
             </FormItem>
           )}
         />
-        
+
         <Button
           type="submit"
           className="w-full"
