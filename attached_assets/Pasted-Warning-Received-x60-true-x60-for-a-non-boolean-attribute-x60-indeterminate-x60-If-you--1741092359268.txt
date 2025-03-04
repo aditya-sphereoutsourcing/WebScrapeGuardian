@@ -1,0 +1,24 @@
+Warning: Received &#x60;true&#x60; for a non-boolean attribute &#x60;indeterminate&#x60;.
+
+If you want to write it to the DOM, pass a string instead: indeterminate=&quot;true&quot; or indeterminate={value.toString()}.
+    at div
+    at https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=9ce709c3:41:13
+    at Provider (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-progress.js?v=9ce709c3:30:15)
+    at https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-progress.js?v=9ce709c3:90:7
+    at _c (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/src/components/ui/progress.tsx:21:11)
+    at div
+    at div
+    at div
+    at TestResults (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/src/components/test-results.tsx:23:39)
+    at div
+    at _c9 (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at Dashboard (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/src/pages/dashboard.tsx:24:41)
+    at Route (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9ce709c3:323:16)
+    at Switch (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9ce709c3:379:17)
+    at Router
+    at QueryClientProvider (https://2ba3c414-b6ef-4428-9d78-e17f4269cccb-00-xd1ss4te83mu.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9ce709c3:2805:3)
+    at App
