@@ -63,7 +63,7 @@ export default function TestResults({ test }: TestResultsProps) {
             <Progress 
               className="mt-2" 
               value={currentTest.status === 'running' ? 50 : 10}
-              indeterminate
+              indeterminate={true}
             />
           )}
         </div>
