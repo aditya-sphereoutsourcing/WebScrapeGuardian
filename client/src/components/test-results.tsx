@@ -3,6 +3,8 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle, Clock, Download } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import LogBox from "./log-box";
+import { useState, useEffect } from 'react';
 import type { Test } from "@shared/schema";
 
 interface TestResultsProps {
@@ -17,6 +19,35 @@ export default function TestResults({ test }: TestResultsProps) {
     refetchInterval: (data) => 
       data?.status === 'pending' || data?.status === 'running' ? 1000 : false,
   });
+
+  // Track test logs
+  const [logs, setLogs] = useState<string[]>([]);
+
+  // Update logs when test status changes
+  useEffect(() => {
+    if (currentTest.status === 'running') {
+      setLogs(prev => [...prev, `Test running for ${currentTest.url}`]);
+    } else if (currentTest.status === 'completed') {
+      setLogs(prev => [...prev, 'Test completed successfully']);
+    } else if (currentTest.status === 'failed') {
+      setLogs(prev => [...prev, 'Test failed']);
+    }
+
+    if (currentTest.results) {
+      const { security, functional, performance } = currentTest.results;
+      setLogs(prev => [
+        ...prev,
+        `Navigation Time: ${functional.navigationTime}ms`,
+        `Found ${functional.brokenLinks.length} broken links`,
+        `Load Time: ${performance.loadTime}ms`,
+        `Found ${security.vulnerabilities.length} security issues:`,
+        `- Critical: ${security.summary.critical}`,
+        `- High: ${security.summary.high}`,
+        `- Medium: ${security.summary.medium}`,
+        `- Low: ${security.summary.low}`,
+      ]);
+    }
+  }, [currentTest.status, currentTest.results]);
 
   const downloadReport = async () => {
     try {
@@ -63,11 +94,14 @@ export default function TestResults({ test }: TestResultsProps) {
             <Progress 
               className="mt-2" 
               value={currentTest.status === 'running' ? 50 : 10}
-              indeterminate={true}
+              indeterminate
             />
           )}
         </div>
       </div>
+
+      {/* Log Box */}
+      <LogBox logs={logs} className="mt-4" />
 
       {currentTest.results && (
         <div className="space-y-4">
